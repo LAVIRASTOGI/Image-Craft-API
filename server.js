@@ -16,25 +16,20 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 await connectDB();
 
-// CORS Configuration
-const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://image-craft-blond.vercel.app",
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "token"],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://image-craft-blond.vercel.app/login",
+];
+// Set up CORS middleware
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true, // Allow cookies and credentials in requests
+  })
+);
 
 // Initialize Middlewares
 app.use(express.json());
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options("*", cors(corsOptions));
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

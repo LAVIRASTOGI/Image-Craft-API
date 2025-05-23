@@ -8,21 +8,23 @@ const authUser = async (req, res, next) => {
 
   // Check if the token is missing
   if (!token) {
-    console.log("came here", token);
-
-    return res.json({ success: false, message: "Not Authorized. Login Again" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Not Authorized. Login Again" });
   }
 
   try {
     // Verify the token using the secret key
     const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
 
+    console.log("tokenDecode", tokenDecode);
     // Check if the decoded token contains a user ID
     if (tokenDecode.id) {
       // Attach user ID to the request body
       req.body.userId = tokenDecode.id;
+      console.log("req.body", req.body, req.body.userId);
     } else {
-      return res.json({
+      return res.status(401).json({
         success: false,
         message: "Not Authorized. Login Again",
       });
@@ -31,7 +33,7 @@ const authUser = async (req, res, next) => {
     // Call the next function in the stack
     next();
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(401).json({ success: false, message: error.message });
   }
 };
 

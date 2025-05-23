@@ -25,6 +25,10 @@ export const generateImage = async (req, res) => {
       });
     }
 
+    // DeepAI API key - use environment variable or fallback to hardcoded key
+    const apiKey =
+      process.env.DEEP_AI_API_KEY || "839d9972-7840-4cb1-a32f-57f38d013844";
+
     // Calling DeepAI API with axios
     const result = await axios.post(
       "https://api.deepai.org/api/text2img",
@@ -32,7 +36,7 @@ export const generateImage = async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "api-key": "839d9972-7840-4cb1-a32f-57f38d013844",
+          "api-key": apiKey,
         },
       }
     );
@@ -43,7 +47,7 @@ export const generateImage = async (req, res) => {
     const imageUrl = result.data.output_url;
 
     if (!imageUrl) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "Failed to generate image",
       });
@@ -59,6 +63,102 @@ export const generateImage = async (req, res) => {
       success: true,
       message: "Image Generated Successfully",
       resultImage: imageUrl,
+      creditBalance: user.creditBalance - 1,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Controller function to remove background from image
+// http://localhost:4000/api/image/remove-background
+
+export const removeBackground = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    console.log("req.body", req.body);
+    console.log("req.file", userId);
+
+    // Check if the uploaded file exists
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No image file provided" });
+    }
+
+    console.log("File received:", req.file);
+
+    // Fetching User Details Using userId
+    const user = await userModel.findById(userId);
+    console.log("user", user);
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Checking User creditBalance
+    if (user.creditBalance === 0 || user.creditBalance < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No Credit Balance",
+        creditBalance: user.creditBalance,
+      });
+    }
+
+    // DeepAI API key - use environment variable or fallback to hardcoded key
+    const apiKey =
+      process.env.DEEP_AI_API_KEY || "839d9972-7840-4cb1-a32f-57f38d013844";
+
+    // Create form data for API request
+    const formData = new FormData();
+
+    // Append the file from req.file
+    formData.append("image", fs.createReadStream(req.file.path));
+
+    // Calling DeepAI API with axios
+    const result = await axios.post(
+      "https://api.deepai.org/api/background-remover",
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          "api-key": apiKey,
+        },
+      }
+    );
+
+    console.log("result", result.data);
+    // Get the processed image URL from the response
+    const processedImageUrl = result.data.output_url;
+
+    if (!processedImageUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to remove background",
+      });
+    }
+
+    // Deduction of user credit
+    await userModel.findByIdAndUpdate(user._id, {
+      creditBalance: user.creditBalance - 1,
+    });
+
+    // Clean up the temporary file
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (error) {
+      console.log("Error deleting temporary file:", error);
+    }
+
+    // Sending Response
+    res.json({
+      success: true,
+      message: "Background Removed Successfully",
+      resultImage: processedImageUrl,
       creditBalance: user.creditBalance - 1,
     });
   } catch (error) {

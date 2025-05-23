@@ -18,8 +18,9 @@ await connectDB();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://image-craft-blond.vercel.app/login",
+  "https://image-craft-blond.vercel.app",
 ];
+
 // Set up CORS middleware
 app.use(
   cors({

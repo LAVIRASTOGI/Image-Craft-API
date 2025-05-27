@@ -20,7 +20,7 @@
     "form-data": "^4.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.1",
-    "multiplier": "^0.1.0",
+    "multer": "^2.0.0",
     "nodemon": "^3.1.7",
     "razorpay": "^2.9.5"
   }

@@ -53,8 +53,8 @@ imageRouter.post("/generate-image", authUser, generateImage);
 // For removeBackground, first handle the file upload, then check auth, then process
 imageRouter.post(
   "/remove-background",
-  authUser, // Check auth first
   upload.single("image"), // Then handle file upload
+  authUser, // Check auth first
   removeBackground // Then process the request
 );
 

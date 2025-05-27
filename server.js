@@ -6,6 +6,7 @@ import connectDB from "./configs/mongodb.js";
 import imageRouter from "./routes/imageRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import cookieParser from "cookie-parser";
 
 // Setup __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);

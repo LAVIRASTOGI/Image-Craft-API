@@ -78,8 +78,8 @@ export const removeBackground = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    console.log("req.body", req.body);
-    console.log("req.file", userId);
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
 
     // Check if the uploaded file exists
     if (!req.file) {
@@ -88,11 +88,9 @@ export const removeBackground = async (req, res) => {
         .json({ success: false, message: "No image file provided" });
     }
 
-    console.log("File received:", req.file);
-
     // Fetching User Details Using userId
     const user = await userModel.findById(userId);
-    console.log("user", user);
+    console.log("Found user:", user ? user._id : "Not found");
 
     if (!user) {
       return res

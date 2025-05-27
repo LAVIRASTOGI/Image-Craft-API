@@ -16,10 +16,18 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 await connectDB();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://image-craft-blond.vercel.app",
-];
+//convert JSon object to the js object and add in req again
+app.use(express.json());
+app.use(cookieParser());
+
+// Allow CORS requests from the specific domains based on the environment
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? [
+        process.env.ALLOWED_ORIGINS_PROD,
+        "https://image-craft-blond.vercel.app/",
+      ] // Production domain
+    : [process.env.ALLOWED_ORIGINS_DEV, "http://localhost:5173"]; // Development domain
 
 // Set up CORS middleware
 app.use(
@@ -28,9 +36,9 @@ app.use(
     credentials: true, // Allow cookies and credentials in requests
   })
 );
-
 // Initialize Middlewares
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

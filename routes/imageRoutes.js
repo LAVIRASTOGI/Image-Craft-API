@@ -10,8 +10,8 @@ import authUser from "../middlewares/auth.js";
 
 const imageRouter = express.Router();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), "uploads");
+// Use /tmp directory which is writable in serverless environments
+const uploadsDir = path.join("/tmp", "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
